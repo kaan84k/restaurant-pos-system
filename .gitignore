@@ -1,0 +1,32 @@
+# Node modules
+node_modules/
+
+# Environment files
+.env
+
+# Build outputs
+/dist
+/dist-ssr
+
+# Logs
+*.log
+logs/
+
+# Prisma generated files
+/generated/prisma
+
+# Editor files
+.vscode/
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Database files
+prisma/dev.db
+
+# Misc
+*.local

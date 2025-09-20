@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model TaxRate {
+  id       Int       @id @default(autoincrement())
+  name     String
+  // 15% = 1500 bps. Keep as Int for SQLite-friendly math.
+  rate_bps Int
+  products Product[]
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  sku         String   @unique
+  name        String
+  barcode     String?  @unique
+  price_cents Int
+  taxRateId   Int?
+  taxRate     TaxRate? @relation(fields: [taxRateId], references: [id])
+  is_active   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  saleItems   SaleItem[]
+  
+  @@index([name])
+  @@index([sku])
+  @@index([barcode])
+}
+
+model Sale {
+  id             Int        @id @default(autoincrement())
+  createdAt      DateTime   @default(now())
+  businessDate   DateTime   @default(now())  // set to local day midnight when creating the sale
+  terminalId     String
+  cashierId      String
+  subtotal_cents Int
+  tax_cents      Int
+  total_cents    Int
+  paid_cents     Int        @default(0)
+  paymentMethod  String?
+  change_cents   Int        @default(0)
+  zReportId      Int?
+  zReport        ZReport?   @relation(fields: [zReportId], references: [id])
+  items          SaleItem[]
+  payments       Payment[]
+  
+  @@index([businessDate, terminalId, zReportId])
+}
+
+model SaleItem {
+  id               Int @id @default(autoincrement())
+  saleId           Int
+  productId        Int
+  qty              Int
+  unit_cents       Int
+  tax_cents        Int
+  line_total_cents Int
+  sale             Sale    @relation(fields: [saleId], references: [id])
+  product          Product @relation(fields: [productId], references: [id])
+}
+
+model Payment {
+  id           Int      @id @default(autoincrement())
+  saleId       Int
+  method       String
+  amount_cents Int
+  createdAt    DateTime @default(now())
+  sale         Sale     @relation(fields: [saleId], references: [id])
+}
+
+model ZReport {
+  id                     Int      @id @default(autoincrement())
+  businessDate           DateTime
+  terminalId             String?
+  createdAt              DateTime @default(now())
+  createdBy              Int?     // User.id if you want to track who closed
+  user                   User?    @relation(fields: [createdBy], references: [id])
+  totals_subtotal_cents  Int
+  totals_tax_cents       Int
+  totals_total_cents     Int
+  totals_paid_cents      Int
+  totals_change_cents    Int
+  payments_by_method     Json?    // [{method:"CASH", amount_cents:1234}, ...]
+  sales                  Sale[]
+  
+  @@index([businessDate, terminalId])
+}
+
+enum Role {
+  CASHIER
+  MANAGER
+  ADMIN
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  name      String
+  pinHash   String
+  role      Role      @default(CASHIER)
+  is_active Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  zReports  ZReport[] // relation to track who created Z-reports
+}
+
+model PaymentMethod {
+  id           Int     @id @default(autoincrement())
+  code         String  @unique // e.g. CASH, CARD, QR
+  label        String
+  is_active    Boolean @default(true)
+  opens_drawer Boolean @default(false)
+  sort         Int     @default(0)
+}

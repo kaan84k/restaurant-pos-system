@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- KOT / receipt print helpers --- */
+.print-area { display: none; }
+
+/* Print only selected block by toggling a class on <body> */
+@media print {
+  @page { size: 80mm auto; margin: 4mm; }
+  html, body { background: white !important; }
+
+  /* By default, hide all print areas… */
+  .print-area { display: none !important; }
+
+  /* …then show only the KOT area when body has 'print-kot' */
+  body.print-kot .print-area.print-kot { display: block !important; }
+}
+
+/* Optional monospace style for compact kitchen ticket */
+.kot { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; }
+.kot .row { display: flex; justify-content: space-between; gap: 8px; }
+.kot .dotted { border-top: 1px dashed #000; margin: 6px 0; }
+
+@media print {
+  body.print-receipt .print-area.print-receipt { display: block !important; }
+}
