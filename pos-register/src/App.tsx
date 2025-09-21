@@ -152,6 +152,7 @@ export default function POSRegister() {
   const [quickBusy, setQuickBusy] = React.useState<number | null>(null);
   const [lastOrderCode, setLastOrderCode] = React.useState<string | null>(null);
 
+
   // Runner: if there's a job and we're not printing, start it; afterprint advances queue
   React.useEffect(() => {
     if (printingRef.current) return;
@@ -360,6 +361,7 @@ export default function POSRegister() {
   const onConfirmPay = async () => {
     if (!cart.length || selectedMethodId == null) return;
     try {
+      const orderCode = nextDailyCode();
       const body = {
         items: cart.map((l) => ({
           productId: l.product.id,
@@ -373,11 +375,10 @@ export default function POSRegister() {
           tax_cents: totals.tax,
           total_cents: totals.total,
         },
+        orderCode,
       };
 
       const resp = await apiPost<{ id: number }>("/sales", body);
-
-      const orderCode = nextDailyCode();
       setLastOrderCode(orderCode);
 
       const now = new Date();
@@ -621,6 +622,7 @@ export default function POSRegister() {
               <button className="px-3 py-2 rounded bg-black text-white" onClick={onConfirmPay}>Confirm</button>
             </div>
           </div>
+
         </div>
       )}
 

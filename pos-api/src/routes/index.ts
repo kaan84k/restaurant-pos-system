@@ -5,6 +5,7 @@ import sales from "./sales";
 import cors from "cors";
 import auth from "./auth";
 import reports from "./reports";
+import kitchen from "./kitchen";
 
 import adminProducts from "./admin.products";
 import adminProductsModule from "./admin.products";
@@ -23,6 +24,7 @@ router.use("/payment-methods", publicPM);
 router.use("/sales", sales);
 router.use("/auth", auth);
 router.use("/reports", reports);  
+router.use("/kitchen", kitchen);
 
 // ADMIN/MANAGER settings
 router.use("/admin/products",        requireAuth, requireRole(["MANAGER","ADMIN"]), adminProducts);

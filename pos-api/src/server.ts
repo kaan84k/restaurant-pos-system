@@ -5,17 +5,18 @@ import routes from "./routes";
 
 const app = express();
 
-const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
-
-// CORS + body parsing BEFORE routes
-app.use(
-  cors({
-    origin: FRONTEND_ORIGIN,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    optionsSuccessStatus: 204,
-  })
-);
+// Allow *any* origin while testing (no credentials), and answer all preflights
+app.use(cors({
+  origin: (_origin, cb) => cb(null, true), // reflect request origin
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  optionsSuccessStatus: 204,
+}));
+// Fallback for OPTIONS requests
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") return res.sendStatus(204);
+  next();
+});
 app.use(express.json({ limit: "5mb" })); // CSV import safety
 
 // Health

@@ -37,6 +37,9 @@ model Sale {
   id             Int        @id @default(autoincrement())
   createdAt      DateTime   @default(now())
   businessDate   DateTime   @default(now())  // set to local day midnight when creating the sale
+  orderCode      String?    @unique
+  kitchenStatus  KitchenStatus @default(PENDING)
+  kitchenCompletedAt DateTime?
   terminalId     String
   cashierId      String
   subtotal_cents Int
@@ -51,6 +54,7 @@ model Sale {
   payments       Payment[]
   
   @@index([businessDate, terminalId, zReportId])
+  @@index([businessDate, kitchenStatus])
 }
 
 model SaleItem {
@@ -116,4 +120,9 @@ model PaymentMethod {
   is_active    Boolean @default(true)
   opens_drawer Boolean @default(false)
   sort         Int     @default(0)
+}
+
+enum KitchenStatus {
+  PENDING
+  COMPLETED
 }
