@@ -62,6 +62,15 @@ export async function apiPut<T>(path: string, body?: any) {
   return handle<T>(res);
 }
 
+export async function apiPatch<T>(path: string, body?: any) {
+  const res = await fetch(`${BASE}${path}`, {
+    method: "PATCH",
+    headers: authHeaders({ "Content-Type": "application/json" }),
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  return handle<T>(res);
+}
+
 export async function apiDel<T = any>(path: string) {
   const res = await fetch(`${BASE}${path}`, {
     method: "DELETE",

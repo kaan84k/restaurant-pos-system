@@ -17,6 +17,10 @@ router.post("/", /* requireAuth, */ async (req, res, next) => {
     const body = req.body ?? {};
     const rawItems: any[] = body.items ?? body.sale_items ?? [];
     const rawPays: any[]  = body.payments ?? body.tenders ?? [];
+    const orderCodeInput =
+      typeof body.orderCode === "string" ? body.orderCode.trim() :
+      typeof body.order_code === "string" ? body.order_code.trim() :
+      null;
 
     if (!Array.isArray(rawItems) || rawItems.length === 0) {
       return res.status(400).json({ error: "items[] required" });
@@ -105,6 +109,7 @@ router.post("/", /* requireAuth, */ async (req, res, next) => {
         terminalId,
         cashierId,
         businessDate: todayMidnight(), // <-- add this
+        orderCode: orderCodeInput || null,
         subtotal_cents,
         tax_cents,
         total_cents,
@@ -114,10 +119,10 @@ router.post("/", /* requireAuth, */ async (req, res, next) => {
         items:    { create: items },
         payments: { create: payments },
       },
-      select: { id: true },
+      select: { id: true, orderCode: true },
     });
 
-    res.status(201).json({ id: sale.id });
+    res.status(201).json({ id: sale.id, orderCode: sale.orderCode ?? orderCodeInput ?? null });
   } catch (err) {
     next(err);
   }

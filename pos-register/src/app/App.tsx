@@ -3,6 +3,8 @@ import { useAuth } from "./auth";
 import LoginPage from "../pages/LoginPage";
 import SettingsPage from "../pages/SettingsPage";
 import ReportsPage from "../pages/ReportsPage";
+import KitchenOrdersPage from "../pages/KitchenOrdersPage";
+import CompletedOrdersPage from "../pages/CompletedOrdersPage";
 import POSRegister from "../App"; // cashier screen
 
 
@@ -27,6 +29,7 @@ export default function AppShell() {
 
   const page = hash.replace(/^#\/?/, "");
   const canAccessSettings = user.role === "ADMIN" || user.role === "MANAGER";
+  const canAccessKitchen = canAccessSettings;
 
   const NavLink = ({
     to,
@@ -56,6 +59,8 @@ export default function AppShell() {
         <div className="font-semibold">POS</div>
         <nav className="flex gap-3 text-sm">
           <NavLink to="register">Register</NavLink>
+          <NavLink to="completed">Completed</NavLink>
+          {canAccessKitchen && <NavLink to="kitchen">Kitchen</NavLink>}
           {canAccessSettings && <NavLink to="reports">Reports</NavLink>}
           {canAccessSettings && <NavLink to="settings">Settings</NavLink>}
         </nav>
@@ -67,12 +72,17 @@ export default function AppShell() {
         </div>
       </header>
       <main className="p-4">
-        {page === "reports"
-          ? (canAccessSettings ? <ReportsPage /> : <div className="text-red-600">Forbidden</div>)
-          : page === "settings"
-            ? (canAccessSettings ? <SettingsPage /> : <div className="text-red-600">Forbidden</div>)
-            : <POSRegister />
-        }
+        {page === "completed" ? (
+          <CompletedOrdersPage />
+        ) : page === "kitchen" ? (
+          canAccessKitchen ? <KitchenOrdersPage /> : <div className="text-red-600">Forbidden</div>
+        ) : page === "reports" ? (
+          canAccessSettings ? <ReportsPage /> : <div className="text-red-600">Forbidden</div>
+        ) : page === "settings" ? (
+          canAccessSettings ? <SettingsPage /> : <div className="text-red-600">Forbidden</div>
+        ) : (
+          <POSRegister />
+        )}
       </main>
     </div>
   );
