@@ -3,9 +3,9 @@ import React from "react";
 import { PublicAPI, type PublicProduct } from "./services/public.service";
 import type { PaymentMethod } from "./services/admin.service";
 import { apiPost } from "./services/api";
+import { STORE_NAME } from "./config/store";
 
 // ---------- helpers ----------
-const STORE_NAME = "Weerasiri Hotel & Bakery";
 const money = (cents: number) => (cents / 100).toFixed(2);
 const fmtDate = (d: Date) => d.toISOString().slice(0, 10);
 const fmtTime = (d: Date) =>
@@ -413,8 +413,8 @@ export default function POSRegister() {
       setReceipt(receiptSnap);
       setKotSnap(kot);
 
-      // Queue prints in sequence (Customer -> KOT) — you already do this:
-      setPrintQueue((q) => [...q, "RECEIPT", "KOT"]);
+      // Queue customer receipt only; KOT prints from kitchen workflow now.
+      setPrintQueue((q) => [...q, "RECEIPT"]);
 
       setLastSaleId(resp.id);
       setShowPay(false);
